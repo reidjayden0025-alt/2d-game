@@ -11,8 +11,15 @@ Controls:
 | S | Down |
 | D | Right |
 
+Dependencies:
+| Dependency | Link / Terminal Download |
+|---|---|
+| Python | https://python.org/downloads |
+| Pygame | pip install pygame |
+
 developers:
-    <ins>Jayden Reid</ins> (Lead developer)
-     - art/animations.
-    <ins>Johan Hardick</ins>
-     - Player stats / Backend development
+| Developer | Credit |
+|---|---|
+| <ins>Jayden Reid</ins> | Lead developer / Art / Animations |
+| <ins>Johan Hardick</ins> | Lead backend developer / kinetics |
+
