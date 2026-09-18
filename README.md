@@ -43,3 +43,6 @@ the player.relate functions do the following:
 I did some sketches in a book to simulate what would happen if I anchored the player in the center of the screen and i wrote down what would happen to other objects relative to the anchored player. I used my observations to form these functions. Hence the names "relateX" and "relateY". whenever you have the x or y values of a specific object on the map just pump their coordinates through these functions first to ensure that they move relatively to the anchored player.
 
 >> <sub>(In simple english) if you have an x and y put them though the "relate" functions before drawing them.</sub>
+
+
+NOTE: make the speed a variable if u need help i can show you my old code, we can do this so that it is easily adjusted and we can make items that increse or decrease speed. Also make the movement four way not eight, this will create a better vibe in the game and will work much better with my animations
