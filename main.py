@@ -11,6 +11,12 @@ class Player:
     def draw(self, screen):
         pygame.draw.rect(screen, (255, 255, 255), (self.x, self.y, self.graphic, self.graphic))
 
+border = {
+    "XLeft": 0,
+    "XRight": 800,
+    "YTop": 0,
+    "YBottom": 600,
+}
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
@@ -31,6 +37,7 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
+    # Controlls:
     keys = pygame.key.get_pressed()
     if keys[pygame.K_a]:
         player.x -= player.speed
@@ -40,6 +47,16 @@ while running:
         player.y -= player.speed
     if keys[pygame.K_s]:
         player.y += player.speed
+
+    # Bordering:
+    if player.x <= border["XLeft"]:
+        player.x = border["XLeft"]
+    if player.x >= border["XRight"] - player.graphic:
+        player.x = border["XRight"] - player.graphic
+    if player.y <= border["YTop"]:
+        player.y = border["YTop"]
+    if player.y >= border["YBottom"] - player.graphic:
+        player.y = border["YBottom"] - player.graphic
 
     screen.fill(BG_COLOUR)
     player.draw(screen)
