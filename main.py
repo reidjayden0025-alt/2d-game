@@ -8,7 +8,7 @@ class Player:
         self.speed = speed
         self.health = health
         self.graphic = graphic
-        self.font = pygame.font.SysFont("arial", 32)
+        self.font = pygame.font.SysFont("roboto", 32)
 
     def draw(self, screen):
         pygame.draw.rect(screen, (255, 255, 255), (SCREEN_WIDTH/2, SCREEN_HEIGHT/2, self.graphic, self.graphic))
@@ -38,7 +38,7 @@ border = {
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
-BG_COLOUR = (30, 30, 30)
+BG_COLOUR = (30, 255, 30)
 WHITE = (255, 255, 255)
 
 pygame.init()
