@@ -41,7 +41,7 @@ border = {
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
-BG_COLOUR = (30, 255, 30)
+BG_COLOUR = (32, 168, 32)
 WHITE = (255, 255, 255)
 
 pygame.init()
