@@ -50,16 +50,35 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Dungeons of Dagestan")
 
 clock = pygame.time.Clock()
-player = Player(15, border["YBottom"]/2, 10, 100, 20)
+player = Player(15, border["YBottom"]/2, 5, 100, 20)
 
 
 with Path("world_items.json").open(encoding="utf-8") as items_file:
     world_items = json.load(items_file)
 
-item_images = {
-    item_name: pygame.image.load(item_data["path"]).convert_alpha()
-    for item_name, item_data in world_items.items()
-}
+item_images = {}
+for item_data in world_items.values():
+    path = item_data["path"]
+    if path not in item_images:
+        item_images[path] = pygame.image.load(path).convert_alpha()
+
+
+def player_collides_with_buildings(x, y):
+    player_rect = pygame.Rect(x, y, player.graphic, player.graphic)
+    return any(
+        not item_data.get("walkable", False)
+        and
+        player_rect.colliderect(
+            pygame.Rect(
+                item_data["x"],
+                item_data["y"],
+                item_data["width"],
+                item_data["height"],
+            )
+        )
+        for item_data in world_items.values()
+    )
+
 
 running = True
 
@@ -70,14 +89,13 @@ while running:
 
     # Controlls:
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_a]:
-        player.x -= player.speed
-    if keys[pygame.K_d]:
-        player.x += player.speed
-    if keys[pygame.K_w]:
-        player.y -= player.speed
-    if keys[pygame.K_s]:
-        player.y += player.speed
+    move_x = (keys[pygame.K_d] - keys[pygame.K_a]) * player.speed
+    move_y = (keys[pygame.K_s] - keys[pygame.K_w]) * player.speed
+
+    if not player_collides_with_buildings(player.x + move_x, player.y):
+        player.x += move_x
+    if not player_collides_with_buildings(player.x, player.y + move_y):
+        player.y += move_y
 
     # Bordering:
     if player.x <= border["XLeft"]:
@@ -99,7 +117,9 @@ while running:
     pygame.draw.rect(screen, (255, 0, 0), (player.relateX(0), player.relateY(border["YBottom"] - 10), border["XRight"], 10))
 
     for item_name, item_data in world_items.items():
-        screen.blit(item_images[item_name], (player.relateX(item_data["x"]), player.relateY(item_data["y"])),)
+        image = item_images[item_data["path"]]
+        position = (player.relateX(item_data["x"]), player.relateY(item_data["y"]))
+        screen.blit(image, position)
 
     player.drawstats(screen)
     player.draw(screen)

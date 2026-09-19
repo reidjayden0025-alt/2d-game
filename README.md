@@ -17,6 +17,7 @@ Dependencies:
 |---|---|
 | Python | https://python.org/downloads |
 | Pygame | pip install pygame |
+| Pillow/PIL | pip install Pillow |
 
 developers:
 | Developer | Credit |
@@ -67,25 +68,33 @@ this basically takes all the data that the json stores and stores it so that the
 The json looks somewhat like this:
 
     {
-        "House1_blue": {
-            "path": "maps/Tiny Village Pack/Outdoors/Buildings/House1_blue.png",
+        "H4Red": {
+            "path": "maps/Tiny Village Pack/Outdoors/Buildings/House4_red.png",
             "x": 200,
-            "y": 300
+            "y": 200,
+            "width": 80,
+            "height": 80,
+            "walkable": false
         },
-        "House1_green": {
-            "path": "maps/Tiny Village Pack/Outdoors/Buildings/House1_green.png",
-            "x": 500,
-            "y": 300
+        "WH4Red": {
+            "path": "maps/Tiny Village Pack/Outdoors/Buildings/Wooden_House4_red.png",
+            "x": 200,
+            "y": 400,
+            "width": 80,
+            "height": 80,
+            "walkable": true
         }
     }
 
 but this looks tedius to uphold, and it is. that is why i have also added a file (called <ins>add_to_map.py</ins>) that allows you to add an image straight from the terminal. the way in which it works is simple and here is a simple demonstration below:
 
     python add_to_map.py
-    which json do you want to edit? world_items.json or inventory_item_pics.png: world_items.json
-    select the file name of the item to add: Wooden_House3_red.png
-    type a nickname for this item (that is not already used in the json as a key): WH3Red
-    insert x value: 100
-    insert y value: 600
-    Successfully added 'Wooden_House3_red.png' to world_items.json!
-    Dow you want to add another item or retry? Y/N: N
+    Input: which json do you want to edit? world_items.json or inventory_item_pics.png:    world_items.json
+    Input: select the file name of the item to add:    Other:mailbox.png
+    Input: type a nickname for this item (that is not already used in the json as a key):    Mailbox0
+    Input: Should the player be able to walk over the object? Y/N:    N
+    Input: insert x value:    200
+    Input: insert y value:    290
+    Info: Image dimensions: (16x16)
+    Info: Successfully added 'Other:mailbox.png' to world_items.json!
+    Input: Do you want to add another item or retry? Y/N: N
