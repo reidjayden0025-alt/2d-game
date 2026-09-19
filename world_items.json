@@ -5,7 +5,8 @@
         "y": 200,
         "width": 80,
         "height": 80,
-        "walkable": false
+        "walkable": false,
+        "damage": 0
     },
     "WH4Red": {
         "path": "maps/Tiny Village Pack/Outdoors/Buildings/Wooden_House4_red.png",
@@ -13,7 +14,8 @@
         "y": 400,
         "width": 80,
         "height": 80,
-        "walkable": true
+        "walkable": true,
+        "damage": 0
     },
     "Mailbox0": {
         "path": "maps/Tiny Village Pack/Outdoors/Other/mailbox.png",
@@ -21,7 +23,8 @@
         "y": 275,
         "width": 16,
         "height": 16,
-        "walkable": false
+        "walkable": false,
+        "damage": 0
     },
     "sign0": {
         "path": "maps/Tiny Village Pack/Outdoors/Other/sign.png",
@@ -29,7 +32,8 @@
         "y": 200,
         "width": 16,
         "height": 16,
-        "walkable": true
+        "walkable": true,
+        "damage": 0
     },
     "npc_1": {
         "path": "maps/Tiny Village Pack/Tiny Adventure Pack/Character/Char_one/Idle/Char_idle_down.png",
@@ -37,6 +41,7 @@
         "y": 10,
         "width": 96,
         "height": 16,
-        "walkable": true
+        "walkable": true,
+        "damage": 1
     }
 }

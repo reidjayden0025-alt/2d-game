@@ -76,6 +76,7 @@ but this looks tedious to uphold, and it is. that is why i have also added a fil
     Input: Should the player be able to walk over the object? Y/N:    Y
     Input: insert x value:    80
     Input: insert y value:    200
+    Input: How much damamge does the charechter take when coming into contact with this object? 0 if none:    0
     Info: Image dimensions: (16x16)
     Info: Successfully added 'Other:sign.png' to world_items.json!
     Input: Do you want to add another item or retry? Y/N: N
