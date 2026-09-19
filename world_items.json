@@ -22,5 +22,13 @@
         "width": 16,
         "height": 16,
         "walkable": false
+    },
+    "sign0": {
+        "path": "maps/Tiny Village Pack/Outdoors/Other/sign.png",
+        "x": 80,
+        "y": 200,
+        "width": 16,
+        "height": 16,
+        "walkable": true
     }
 }

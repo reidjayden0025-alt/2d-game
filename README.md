@@ -70,10 +70,12 @@ The json looks somewhat like this:
 but this looks tedious to uphold, and it is. that is why i have also added a file (called <ins>add_to_map.py</ins>) that allows you to add an image straight from the terminal. the way in which it works is simple and here is an easy demonstration below:
 
     python add_to_map.py
-    which json do you want to edit? world_items.json or inventory_item_pics.png: world_items.json
-    select the file name of the item to add: Wooden_House3_red.png
-    type a nickname for this item (that is not already used in the json as a key): WH3Red
-    insert x value: 100
-    insert y value: 600
-    Successfully added 'Wooden_House3_red.png' to world_items.json!
-    Dow you want to add another item or retry? Y/N: N
+    Input: which json do you want to edit? world_items.json or inventory_item_pics.png:    world_items.json
+    Input: select the file name of the item to add:    Other:sign.png
+    Input: type a nickname for this item (that is not already used in the json as a key):    sign0
+    Input: Should the player be able to walk over the object? Y/N:    Y
+    Input: insert x value:    80
+    Input: insert y value:    200
+    Info: Image dimensions: (16x16)
+    Info: Successfully added 'Other:sign.png' to world_items.json!
+    Input: Do you want to add another item or retry? Y/N: N
