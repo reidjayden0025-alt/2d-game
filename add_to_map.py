@@ -52,6 +52,7 @@ images = {
     "Other:sign_2_left.png": ("maps/Tiny Village Pack/Outdoors/Other/sign_2_left.png"),
     "Other:sign_2_right.png": ("maps/Tiny Village Pack/Outdoors/Other/sign_2_right.png"),
     "Other:streetlight.png": ("maps/Tiny Village Pack/Outdoors/Other/streetlight.png"),
+    "NPC:npc1": ("maps/Tiny Village Pack/Tiny Adventure Pack/Character/Char_one/Idle/Char_idle_down.png")
 
 }
 

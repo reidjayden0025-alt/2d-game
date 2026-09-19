@@ -5,16 +5,39 @@ import pygame
 
 
 class Player:
-    def __init__(self, x, y, speed, health, graphic):
+    def __init__(self, x, y, speed, health, size, graphic):
         self.x = x
         self.y = y
         self.speed = speed
         self.health = health
+        self.size = size
         self.graphic = graphic
+        self.dir = "down"
+        self.running = False
         self.font = pygame.font.SysFont("roboto", 32)
 
-    def draw(self, screen):
-        pygame.draw.rect(screen, (255, 255, 255), (SCREEN_WIDTH/2, SCREEN_HEIGHT/2, self.graphic, self.graphic))
+    def draw(self, screen, x):
+        if self.running == True:
+            if self.dir == "down":
+                player_sheet = pygame.image.load(self.graphic + "/Walk/Char_walk_down.png").convert_alpha()
+            elif self.dir == "left":
+                player_sheet = pygame.image.load(self.graphic + "/Walk/Char_walk_left.png").convert_alpha()
+            elif self.dir == "right":
+                player_sheet = pygame.image.load(self.graphic + "/Walk/Char_walk_right.png").convert_alpha()
+            elif self.dir == "up":
+                player_sheet = pygame.image.load(self.graphic + "/Walk/Char_walk_up.png").convert_alpha()
+        else:
+            if self.dir == "down":
+                player_sheet = pygame.image.load(self.graphic + "/Idle/Char_idle_down.png").convert_alpha()
+            elif self.dir == "left":
+                player_sheet = pygame.image.load(self.graphic + "/Idle/Char_idle_left.png").convert_alpha()
+            elif self.dir == "right":
+                player_sheet = pygame.image.load(self.graphic + "/Idle/Char_idle_right.png").convert_alpha()
+            elif self.dir == "up":
+                player_sheet = pygame.image.load(self.graphic + "/Idle/Char_idle_up.png").convert_alpha()
+
+        player_image = player_sheet.subsurface(pygame.Rect(x, 0, 16, 16)).copy()
+        screen.blit(player_image,(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2))
 
     def drawstats(self, screen):
         text_surface = self.font.render(f"Health: {self.health}", True, WHITE)
@@ -50,7 +73,7 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Dungeons of Dagestan")
 
 clock = pygame.time.Clock()
-player = Player(15, border["YBottom"]/2, 5, 100, 20)
+player = Player(15, border["YBottom"]/2, 5, 100, 32, "maps/Tiny Village Pack/Tiny Adventure Pack/Character/Char_one")
 
 
 with Path("world_items.json").open(encoding="utf-8") as items_file:
@@ -64,7 +87,7 @@ for item_data in world_items.values():
 
 
 def player_collides_with_buildings(x, y):
-    player_rect = pygame.Rect(x, y, player.graphic, player.graphic)
+    player_rect = pygame.Rect(x, y, player.size, player.size)
     return any(
         not item_data.get("walkable", False)
         and
@@ -81,6 +104,9 @@ def player_collides_with_buildings(x, y):
 
 
 running = True
+#animation box holders
+x = 0
+frame_count = 0
 
 while running:
     for event in pygame.event.get():
@@ -92,6 +118,24 @@ while running:
     move_x = (keys[pygame.K_d] - keys[pygame.K_a]) * player.speed
     move_y = (keys[pygame.K_s] - keys[pygame.K_w]) * player.speed
 
+    #animations
+    if keys[pygame.K_s]:
+        player.dir = "down"
+        player.running = True
+    elif keys[pygame.K_d]:
+        player.dir = "right"
+        player.running = True
+    elif keys[pygame.K_w]:
+        player.dir = "up"
+        player.running = True
+    elif keys[pygame.K_a]:
+        player.dir = "left"
+        player.running = True
+
+    if not (keys[pygame.K_w] or keys[pygame.K_a] or keys[pygame.K_s] or keys[pygame.K_d]):
+        player.running = False
+    
+
     if not player_collides_with_buildings(player.x + move_x, player.y):
         player.x += move_x
     if not player_collides_with_buildings(player.x, player.y + move_y):
@@ -100,12 +144,12 @@ while running:
     # Bordering:
     if player.x <= border["XLeft"]:
         player.x = border["XLeft"]
-    if player.x >= border["XRight"] - player.graphic:
-        player.x = border["XRight"] - player.graphic
+    if player.x >= border["XRight"] - player.size:
+        player.x = border["XRight"] - player.size
     if player.y <= border["YTop"]:
         player.y = border["YTop"]
-    if player.y >= border["YBottom"] - player.graphic:
-        player.y = border["YBottom"] - player.graphic
+    if player.y >= border["YBottom"] - player.size:
+        player.y = border["YBottom"] - player.size
 
     screen.fill(BG_COLOUR)
 
@@ -122,7 +166,18 @@ while running:
         screen.blit(image, position)
 
     player.drawstats(screen)
-    player.draw(screen)
+
+    # drawing the player
+    frame_count += 1
+    if frame_count % 10 == 0 and player.running == True:
+        x += 16
+    if x == 96:
+        x = 0
+    player.draw(screen, x)
+
+    # frame clean up
+    if frame_count % 500 == 0:
+        frame_count = 0
 
     pygame.display.flip()
     clock.tick(60)
