@@ -76,6 +76,9 @@ def main():
     walkQ = input("Input: Should the player be able to walk over the object? Y/N:    ")
     walkable = True if walkQ == "Y" else False
 
+    dq = input("Input: should the object be destroyed on impact? Y/N:    ")
+    destroy_on_impact = True if dq == "Y" else False
+
     
     if item_to_add in images:
 
@@ -83,6 +86,8 @@ def main():
         y = int(input("Input: insert y value:    "))
 
         damage = input("Input: How much damamge does the charechter take when coming into contact with this object? 0 if none:    ")
+        gold  = input("Input: How much gold is this item when picked up? 0 if not gold:    ")
+        xp = input("Input: How much xp is this item when picked up? 0 if not xp:    ")
 
         with Image.open(images[item_to_add]) as img:
             width, height = img.size
@@ -95,7 +100,10 @@ def main():
             "width": width,
             "height": height,
             "walkable": walkable,
-            "damage": damage
+            "destroy_on_impact": destroy_on_impact,
+            "damage": damage,
+            "gold": gold,
+            "xp": xp
         }
 
         with open(json_file, "w") as f:

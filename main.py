@@ -22,6 +22,8 @@ class Player:
         self.attack_timer = 0
         self.rect = pygame.Rect(x, y, self.size, self.size)
         self.damn = False
+        self.ching = False
+        self.chong = False
         self.font = pygame.font.SysFont("roboto", 32)
 
         self.animation_sheets = { # dont get confused looking at this, it's only 3 nested dictionairies that initialise animated images by themselves
@@ -68,9 +70,9 @@ class Player:
         xp = self.font.render(f"XP: {self.xp}", True, xpcolour)
 
         health_rect = health.get_rect(topleft=(20, 20))
-        gold_rect = health.get_rect(topleft=(20, 40))
-        level_rect = health.get_rect(topleft=(20, 60))
-        xp_rect = health.get_rect(topleft=(20, 80))
+        gold_rect = gold.get_rect(topleft=(20, 40))
+        level_rect = level.get_rect(topleft=(20, 60))
+        xp_rect = xp.get_rect(topleft=(20, 80))
 
         screen.blit(health, health_rect)
         screen.blit(gold, gold_rect)
@@ -88,6 +90,12 @@ class Player:
     def damage(self, damn):
         self.health -= damn
 
+    def recieve_money(self, ammount):
+        self.gold += ammount
+
+    def recieve_xp(self, ammount):
+        self.xp += ammount
+
 border = {
     "XLeft": 0,
     "XRight": 3200,
@@ -101,8 +109,10 @@ BG_COLOUR = (32, 168, 32)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 GOLD = (255, 255, 0)
+YELLOW = (201, 165, 20)
 BLUE = (0, 0, 255)
-GREEN = (0, 255, 0)
+GREEN = (74, 196, 37)
+LIGHT_GREEN = (60, 255, 0)
 alpha_val = 128  # 0 (invisible) to 255 (solid)
 TRANSPARENT = (48, 84, 2, alpha_val)
 
@@ -146,6 +156,7 @@ running = True
 #animation box holders
 x = 0
 frame_count = 0
+excepting = set()
 
 while running:
     for event in pygame.event.get():
@@ -187,10 +198,29 @@ while running:
 
     # Damage system
     if frame_count % 10 == 0:
-        for item_data in world_items.values():
-            if player.rect.colliderect(pygame.Rect(item_data["x"], item_data["y"], item_data["width"], item_data["height"],)) and item_data["damage"] > 0:
-                player.damage(item_data["damage"])
-                player.damn = True
+        for item_name, item_data in world_items.items():
+            if item_name not in excepting:
+                if player.rect.colliderect(pygame.Rect(item_data["x"], item_data["y"], item_data["width"], item_data["height"],)) and item_data["damage"] > 0:
+                    player.damage(item_data["damage"])
+                    player.damn = True
+
+    # Gold system
+    for item_name, item_data in world_items.items():
+        if item_name not in excepting:
+            if player.rect.colliderect(pygame.Rect(item_data["x"], item_data["y"], item_data["width"], item_data["height"],)) and item_data["gold"] > 0:
+                player.recieve_money(item_data["gold"])
+                player.ching = True
+    # Xp system
+    for item_name, item_data in world_items.items():
+        if item_name not in excepting:
+            if player.rect.colliderect(pygame.Rect(item_data["x"], item_data["y"], item_data["width"], item_data["height"],)) and item_data["xp"] > 0:
+                player.recieve_xp(item_data["xp"])
+                player.chong = True
+
+    for item_name, item_data in world_items.items():
+        if item_name not in excepting:
+            if player.rect.colliderect(pygame.Rect(item_data["x"], item_data["y"], item_data["width"], item_data["height"],)) and item_data["destroy_on_impact"]:
+                excepting.add(item_name)
 
     # Bordering:
     if player.x <= border["XLeft"]:
@@ -212,17 +242,21 @@ while running:
     pygame.draw.rect(screen, RED, (player.relateX(0), player.relateY(border["YBottom"] - 10), border["XRight"], 10))
 
     for item_name, item_data in world_items.items():
-        image = item_images[item_data["path"]]
-        position = (player.relateX(item_data["x"]), player.relateY(item_data["y"]))
-        screen.blit(image, position)
+        if item_name not in excepting:
+            image = item_images[item_data["path"]]
+            position = (player.relateX(item_data["x"]), player.relateY(item_data["y"]))
+            screen.blit(image, position)
 
-    if player.damn == True:
-        player.drawstats(screen, RED, GOLD, BLUE, GREEN)
-    else:
-        player.drawstats(screen, WHITE, GOLD, BLUE, GREEN)
+    c1 = RED if player.damn else WHITE
+    c2 = YELLOW if player.ching else GOLD
+    c4 = LIGHT_GREEN if player.chong else GREEN
+
+    player.drawstats(screen, c1, c2, BLUE, c4)
 
     if frame_count % 3 == 0:
         player.damn = False
+        player.ching = False
+        player.chong = False
 
     # drawing the player
     frame_count += 1
