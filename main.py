@@ -10,6 +10,9 @@ class Player:
         self.y = y
         self.speed = speed
         self.health = health
+        self.gold = 0
+        self.level = 0
+        self.xp = 0
         self.size = size
         self.graphic = graphic
         self.dir = "down"
@@ -53,10 +56,26 @@ class Player:
         player_image = pygame.transform.scale(player_image, (self.size, self.size))
         screen.blit(player_image,(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2))
 
-    def drawstats(self, screen, colour):
-        text_surface = self.font.render(f"Health: {self.health}", True, colour)
-        text_rect = text_surface.get_rect(topleft=(20, 20))
-        screen.blit(text_surface, text_rect)
+    def drawstats(self, screen, healthcolour, goldcolour, levelcolour, xpcolour):
+
+        transparent_surface = pygame.Surface((160, 100), pygame.SRCALPHA)
+        transparent_surface.fill(TRANSPARENT)
+        screen.blit(transparent_surface, (10, 10))
+
+        health = self.font.render(f"Health: {self.health}", True, healthcolour)
+        gold = self.font.render(f"Gold: {self.gold}", True, goldcolour)
+        level = self.font.render(f"Level: {self.level}", True, levelcolour)
+        xp = self.font.render(f"XP: {self.xp}", True, xpcolour)
+
+        health_rect = health.get_rect(topleft=(20, 20))
+        gold_rect = health.get_rect(topleft=(20, 40))
+        level_rect = health.get_rect(topleft=(20, 60))
+        xp_rect = health.get_rect(topleft=(20, 80))
+
+        screen.blit(health, health_rect)
+        screen.blit(gold, gold_rect)
+        screen.blit(level, level_rect)
+        screen.blit(xp, xp_rect)
 
     def relateX(self, x):
         X = x + SCREEN_WIDTH/2 - self.x
@@ -81,6 +100,11 @@ SCREEN_HEIGHT = 600
 BG_COLOUR = (32, 168, 32)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
+GOLD = (255, 255, 0)
+BLUE = (0, 0, 255)
+GREEN = (0, 255, 0)
+alpha_val = 128  # 0 (invisible) to 255 (solid)
+TRANSPARENT = (48, 84, 2, alpha_val)
 
 pygame.init()
 
@@ -193,9 +217,9 @@ while running:
         screen.blit(image, position)
 
     if player.damn == True:
-        player.drawstats(screen, RED)
+        player.drawstats(screen, RED, GOLD, BLUE, GREEN)
     else:
-        player.drawstats(screen, WHITE)
+        player.drawstats(screen, WHITE, GOLD, BLUE, GREEN)
 
     if frame_count % 3 == 0:
         player.damn = False
