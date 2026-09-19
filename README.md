@@ -29,7 +29,7 @@ developers:
 
 > Dev Note To Jayden:
 
-I have introduced an easy system for adding the images to the screen. I have added a for loop in the game loop that accesses a json file that holds the paths to specific image files and holds their coordinates on the game map. this loop is just the end of a beautiful process used to add images to the map easily. the loop looks like this:
+I have introduced an easy system for adding the images to the screen. I have added a for loop in the game loop that accesses a json file that holds the paths to specific image files along with some extra information about the images and their coordinates on the game map. this loop is just the end of a beautiful process used to add images to the map easily. the loop looks like this:
 
     for item_name, item_data in world_items.items():
         screen.blit(item_images[item_name], (player.relateX(item_data["x"]), player.relateY(item_data["y"])),)
@@ -55,7 +55,8 @@ The json looks somewhat like this:
             "y": 200,
             "width": 80,
             "height": 80,
-            "walkable": false
+            "walkable": false,
+            "damage": 0
         },
         "WH4Red": {
             "path": "maps/Tiny Village Pack/Outdoors/Buildings/Wooden_House4_red.png",
@@ -63,7 +64,8 @@ The json looks somewhat like this:
             "y": 400,
             "width": 80,
             "height": 80,
-            "walkable": true
+            "walkable": true,
+            "damage": 0
         }
     }
 
