@@ -14,31 +14,43 @@ class Player:
         self.graphic = graphic
         self.dir = "down"
         self.running = False
+        self.attacking = False
+        self.attack_frame = 0
+        self.attack_timer = 0
         self.rect = pygame.Rect(x, y, self.size, self.size)
         self.damn = False
         self.font = pygame.font.SysFont("roboto", 32)
 
-    def draw(self, screen, x):
-        if self.running == True:
-            if self.dir == "down":
-                player_sheet = pygame.image.load(self.graphic + "/Walk/Char_walk_down.png").convert_alpha()
-            elif self.dir == "left":
-                player_sheet = pygame.image.load(self.graphic + "/Walk/Char_walk_left.png").convert_alpha()
-            elif self.dir == "right":
-                player_sheet = pygame.image.load(self.graphic + "/Walk/Char_walk_right.png").convert_alpha()
-            elif self.dir == "up":
-                player_sheet = pygame.image.load(self.graphic + "/Walk/Char_walk_up.png").convert_alpha()
-        else:
-            if self.dir == "down":
-                player_sheet = pygame.image.load(self.graphic + "/Idle/Char_idle_down.png").convert_alpha()
-            elif self.dir == "left":
-                player_sheet = pygame.image.load(self.graphic + "/Idle/Char_idle_left.png").convert_alpha()
-            elif self.dir == "right":
-                player_sheet = pygame.image.load(self.graphic + "/Idle/Char_idle_right.png").convert_alpha()
-            elif self.dir == "up":
-                player_sheet = pygame.image.load(self.graphic + "/Idle/Char_idle_up.png").convert_alpha()
+        self.animation_sheets = { # dont get confused looking at this, it's only 3 nested dictionairies that initialise animated images by themselves
+            "idle": {
+                direction: pygame.image.load(f"{graphic}/Idle/Char_idle_{direction}.png").convert_alpha()
+                for direction in ("down", "left", "right", "up")
+            },
+            "walk": {
+                direction: pygame.image.load(f"{graphic}/Walk/Char_walk_{direction}.png").convert_alpha()
+                for direction in ("down", "left", "right", "up")
+            },
+            "attack": {
+                direction: pygame.image.load(f"{graphic}/Attack/Char_atk_{direction}.png").convert_alpha()
+                for direction in ("down", "left", "right", "up")
+            },
+        }
 
-        player_image = player_sheet.subsurface(pygame.Rect(x, 0, 16, 16)).copy()
+    def draw(self, screen, walk_frame):
+        if self.attacking:
+            player_sheet = self.animation_sheets["attack"][self.dir]
+            frame_width = 23 if self.dir in ("down", "up") else 16
+            frame_height = player_sheet.get_height()
+            frame_x = self.attack_frame * frame_width
+        else:
+            animation = "walk" if self.running else "idle"
+            player_sheet = self.animation_sheets[animation][self.dir]
+            frame_width = 16
+            frame_height = 16
+            frame_x = walk_frame
+
+        player_image = player_sheet.subsurface(pygame.Rect(frame_x, 0, frame_width, frame_height)).copy()
+        player_image = pygame.transform.scale(player_image, (self.size, self.size))
         screen.blit(player_image,(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2))
 
     def drawstats(self, screen, colour):
@@ -115,6 +127,11 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+            if not player.attacking:
+                player.attacking = True
+                player.attack_frame = 0
+                player.attack_timer = 0
 
     # Controlls:
     keys = pygame.key.get_pressed()
@@ -137,7 +154,7 @@ while running:
 
     if not (keys[pygame.K_w] or keys[pygame.K_a] or keys[pygame.K_s] or keys[pygame.K_d]):
         player.running = False
-    
+
     #collisions
     if not player_collides_with_buildings(player.x + move_x, player.y):
         player.x += move_x
@@ -189,11 +206,21 @@ while running:
         x += 16
     if x == 96:
         x = 0
+
+    if player.attacking:
+        player.attack_timer += 1
+        if player.attack_timer % 6 == 0:
+            player.attack_frame += 1
+            if player.attack_frame == 6:
+                player.attacking = False
+                player.attack_frame = 0
+
     player.draw(screen, x)
 
     # frame clean up
     if frame_count % 500 == 0:
         frame_count = 0
+
 
 
     pygame.display.flip()
