@@ -17,8 +17,8 @@
     },
     "Mailbox0": {
         "path": "maps/Tiny Village Pack/Outdoors/Other/mailbox.png",
-        "x": 200,
-        "y": 290,
+        "x": 275,
+        "y": 275,
         "width": 16,
         "height": 16,
         "walkable": false
