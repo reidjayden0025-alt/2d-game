@@ -1,0 +1,27 @@
+{
+    "House1_blue": {
+        "path": "maps/Tiny Village Pack/Outdoors/Buildings/House1_blue.png",
+        "x": 200,
+        "y": 300
+    },
+    "House1_green": {
+        "path": "maps/Tiny Village Pack/Outdoors/Buildings/House1_green.png",
+        "x": 500,
+        "y": 300
+    },
+    "House1_red": {
+        "path": "maps/Tiny Village Pack/Outdoors/Buildings/House1_red.png",
+        "x": 800,
+        "y": 300
+    },
+    "H4Blue": {
+        "path": "maps/Tiny Village Pack/Outdoors/Buildings/House4_blue.png",
+        "x": 10,
+        "y": 100
+    },
+    "WH3Red": {
+        "path": "maps/Tiny Village Pack/Outdoors/Buildings/Wooden_House3_red.png",
+        "x": 100,
+        "y": 600
+    }
+}

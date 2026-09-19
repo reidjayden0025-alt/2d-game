@@ -1,3 +1,6 @@
+import json
+from pathlib import Path
+
 import pygame
 
 
@@ -49,6 +52,15 @@ pygame.display.set_caption("Dungeons of Dagestan")
 clock = pygame.time.Clock()
 player = Player(15, border["YBottom"]/2, 10, 100, 20)
 
+
+with Path("world_items.json").open(encoding="utf-8") as items_file:
+    world_items = json.load(items_file)
+
+item_images = {
+    item_name: pygame.image.load(item_data["path"]).convert_alpha()
+    for item_name, item_data in world_items.items()
+}
+
 running = True
 
 while running:
@@ -85,6 +97,9 @@ while running:
     pygame.draw.rect(screen, (255, 0, 0), (player.relateX(border["XRight"] - 10), player.relateY(0), 10, border["YBottom"]))
     pygame.draw.rect(screen, (255, 0, 0), (player.relateX(0), player.relateY(border["YTop"]), border["XRight"], 10))
     pygame.draw.rect(screen, (255, 0, 0), (player.relateX(0), player.relateY(border["YBottom"] - 10), border["XRight"], 10))
+
+    for item_name, item_data in world_items.items():
+        screen.blit(item_images[item_name], (player.relateX(item_data["x"]), player.relateY(item_data["y"])),)
 
     player.drawstats(screen)
     player.draw(screen)

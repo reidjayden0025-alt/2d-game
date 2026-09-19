@@ -45,4 +45,47 @@ I did some sketches in a book to simulate what would happen if I anchored the pl
 >> <sub>(In simple english) if you have an x and y put them though the "relate" functions before drawing them.</sub>
 
 
-NOTE: make the speed a variable if u need help i can show you my old code, we can do this so that it is easily adjusted and we can make items that increse or decrease speed. Also make the movement four way not eight, this will create a better vibe in the game and will work much better with my animations
+> Dev Note:
+
+I have introduced an easy system for adding the images to the screen. I have added a for loop in the game loop that accesses a json file that holds the paths to specific image files and holds their coordinates on the game map. this loop is just the end of a beautiful process used to add images to the map easily. the loop looks like this:
+
+    for item_name, item_data in world_items.items():
+        screen.blit(item_images[item_name], (player.relateX(item_data["x"]), player.relateY(item_data["y"])),)
+
+and the dictionsry that it refers to is declared earlier like this:
+
+    with Path("world_items.json").open(encoding="utf-8") as items_file:
+        world_items = json.load(items_file)
+
+    item_images = {
+        item_name: pygame.image.load(item_data["path"]).convert_alpha()
+        for item_name, item_data in world_items.items()
+    }
+
+this basically takes all the data that the json stores and stores it so that the game loop can access it and show all of those coordinates and images on the map.
+
+The json looks somewhat like this:
+
+    {
+        "House1_blue": {
+            "path": "maps/Tiny Village Pack/Outdoors/Buildings/House1_blue.png",
+            "x": 200,
+            "y": 300
+        },
+        "House1_green": {
+            "path": "maps/Tiny Village Pack/Outdoors/Buildings/House1_green.png",
+            "x": 500,
+            "y": 300
+        }
+    }
+
+but this looks tedius to uphold, and it is. that is why i have also added a file (called <ins>add_to_map.py</ins>) that allows you to add an image straight from the terminal. the way in which it works is simple and here is a simple demonstration below:
+
+    python add_to_map.py
+    which json do you want to edit? world_items.json or inventory_item_pics.png: world_items.json
+    select the file name of the item to add: Wooden_House3_red.png
+    type a nickname for this item (that is not already used in the json as a key): WH3Red
+    insert x value: 100
+    insert y value: 600
+    Successfully added 'Wooden_House3_red.png' to world_items.json!
+    Dow you want to add another item or retry? Y/N: N
