@@ -30,5 +30,13 @@
         "width": 16,
         "height": 16,
         "walkable": true
+    },
+    "npc_1": {
+        "path": "maps/Tiny Village Pack/Tiny Adventure Pack/Character/Char_one/Idle/Char_idle_down.png",
+        "x": 10,
+        "y": 10,
+        "width": 96,
+        "height": 16,
+        "walkable": true
     }
 }
