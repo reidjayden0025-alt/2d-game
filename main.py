@@ -14,6 +14,8 @@ class Player:
         self.graphic = graphic
         self.dir = "down"
         self.running = False
+        self.rect = pygame.Rect(x, y, self.size, self.size)
+        self.damn = False
         self.font = pygame.font.SysFont("roboto", 32)
 
     def draw(self, screen, x):
@@ -39,8 +41,8 @@ class Player:
         player_image = player_sheet.subsurface(pygame.Rect(x, 0, 16, 16)).copy()
         screen.blit(player_image,(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2))
 
-    def drawstats(self, screen):
-        text_surface = self.font.render(f"Health: {self.health}", True, WHITE)
+    def drawstats(self, screen, colour):
+        text_surface = self.font.render(f"Health: {self.health}", True, colour)
         text_rect = text_surface.get_rect(topleft=(20, 20))
         screen.blit(text_surface, text_rect)
 
@@ -66,6 +68,7 @@ SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 BG_COLOUR = (32, 168, 32)
 WHITE = (255, 255, 255)
+RED = (255, 0, 0)
 
 pygame.init()
 
@@ -87,11 +90,11 @@ for item_data in world_items.values():
 
 
 def player_collides_with_buildings(x, y):
-    player_rect = pygame.Rect(x, y, player.size, player.size)
+    player.rect = pygame.Rect(x, y, player.size, player.size)
     return any(
         not item_data.get("walkable", False)
         and
-        player_rect.colliderect(
+        player.rect.colliderect(
             pygame.Rect(
                 item_data["x"],
                 item_data["y"],
@@ -135,11 +138,18 @@ while running:
     if not (keys[pygame.K_w] or keys[pygame.K_a] or keys[pygame.K_s] or keys[pygame.K_d]):
         player.running = False
     
-
+    #collisions
     if not player_collides_with_buildings(player.x + move_x, player.y):
         player.x += move_x
     if not player_collides_with_buildings(player.x, player.y + move_y):
         player.y += move_y
+
+    # Damage system
+    if frame_count % 10 == 0:
+        for item_data in world_items.values():
+            if player.rect.colliderect(pygame.Rect(item_data["x"], item_data["y"], item_data["width"], item_data["height"],)) and item_data["damage"] > 0:
+                player.damage(item_data["damage"])
+                player.damn = True
 
     # Bordering:
     if player.x <= border["XLeft"]:
@@ -153,19 +163,25 @@ while running:
 
     screen.fill(BG_COLOUR)
 
-    pygame.draw.rect(screen, (255, 0, 0), (player.relateX(400), player.relateY(0), 10, 10))
+    pygame.draw.rect(screen, RED, (player.relateX(400), player.relateY(0), 10, 10))
 
-    pygame.draw.rect(screen, (255, 0, 0), (player.relateX(border["XLeft"]), player.relateY(0), 10, border["YBottom"]))
-    pygame.draw.rect(screen, (255, 0, 0), (player.relateX(border["XRight"] - 10), player.relateY(0), 10, border["YBottom"]))
-    pygame.draw.rect(screen, (255, 0, 0), (player.relateX(0), player.relateY(border["YTop"]), border["XRight"], 10))
-    pygame.draw.rect(screen, (255, 0, 0), (player.relateX(0), player.relateY(border["YBottom"] - 10), border["XRight"], 10))
+    pygame.draw.rect(screen, RED, (player.relateX(border["XLeft"]), player.relateY(0), 10, border["YBottom"]))
+    pygame.draw.rect(screen, RED, (player.relateX(border["XRight"] - 10), player.relateY(0), 10, border["YBottom"]))
+    pygame.draw.rect(screen, RED, (player.relateX(0), player.relateY(border["YTop"]), border["XRight"], 10))
+    pygame.draw.rect(screen, RED, (player.relateX(0), player.relateY(border["YBottom"] - 10), border["XRight"], 10))
 
     for item_name, item_data in world_items.items():
         image = item_images[item_data["path"]]
         position = (player.relateX(item_data["x"]), player.relateY(item_data["y"]))
         screen.blit(image, position)
 
-    player.drawstats(screen)
+    if player.damn == True:
+        player.drawstats(screen, RED)
+    else:
+        player.drawstats(screen, WHITE)
+
+    if frame_count % 3 == 0:
+        player.damn = False
 
     # drawing the player
     frame_count += 1
@@ -178,6 +194,7 @@ while running:
     # frame clean up
     if frame_count % 500 == 0:
         frame_count = 0
+
 
     pygame.display.flip()
     clock.tick(60)

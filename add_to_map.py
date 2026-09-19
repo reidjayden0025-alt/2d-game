@@ -52,7 +52,7 @@ images = {
     "Other:sign_2_left.png": ("maps/Tiny Village Pack/Outdoors/Other/sign_2_left.png"),
     "Other:sign_2_right.png": ("maps/Tiny Village Pack/Outdoors/Other/sign_2_right.png"),
     "Other:streetlight.png": ("maps/Tiny Village Pack/Outdoors/Other/streetlight.png"),
-    "NPC:npc1": ("maps/Tiny Village Pack/Tiny Adventure Pack/Character/Char_one/Idle/Char_idle_down.png")
+    "Sword": "maps/Inventory Ui items/Rusty Sword.png"
 
 }
 
@@ -82,6 +82,8 @@ def main():
         x = int(input("Input: insert x value:    "))
         y = int(input("Input: insert y value:    "))
 
+        damage = input("Input: How much damamge does the charechter take when coming into contact with this object? 0 if none:    ")
+
         with Image.open(images[item_to_add]) as img:
             width, height = img.size
             print(f"Info: Image dimensions: ({width}x{height})")
@@ -92,7 +94,8 @@ def main():
             "y": y,
             "width": width,
             "height": height,
-            "walkable": walkable
+            "walkable": walkable,
+            "damage": damage
         }
 
         with open(json_file, "w") as f:
