@@ -1,4 +1,5 @@
 import json
+import math
 import os
 from pathlib import Path
 from PIL import Image
@@ -14,6 +15,7 @@ class crossbar:
     def draw(self, screen):
         pygame.draw.rect(screen, (255, 255, 255), (SCREEN_WIDTH//2 - 5, SCREEN_HEIGHT//2, self.size, 3))
         pygame.draw.rect(screen, (255, 255, 255), (SCREEN_WIDTH//2, SCREEN_HEIGHT//2 - 5, 3, self.size))
+        pygame.draw.rect(screen, (255, 0, 0), (SCREEN_WIDTH//2, SCREEN_HEIGHT//2, 1, 1))
 
     def relateX(self, x):
         X = x + SCREEN_WIDTH/2 - self.x
@@ -115,7 +117,7 @@ def main():
     global last_p_press
 
 
-    json_file = input("Input: which json do you want to edit? world_items.json or inventory_item_pics.png:    ")
+    json_file = "world_items.json"
 
     if os.path.exists(json_file):
         with open(json_file, "r") as f:
@@ -151,8 +153,8 @@ def main():
             print(f"INSTRUCTION: WASD = move; Arrows = fast move")
             print(f"INSTRUCTION: P: paste")
             print(f"INSTRUCTION: U: undo paste")
-            print(f"INSTRUCTION: C: get coords")
-
+            print(f"INSTRUCTION: C: get crossbar coords")
+            print(f"INSTRUCTION: I: get closest object information")
     
 
         running = True
@@ -212,6 +214,30 @@ def main():
                             json.dump(data, f, indent=4)
 
                         world_items.pop(key_to_delete, None)
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_i:
+                    closest_items = [
+                        (item_name, item, math.hypot(
+                            crossbar.x - item["x"],
+                            crossbar.y - item["y"],
+                        ))
+                        for item_name, item in data.items()
+                    ]
+
+                    if closest_items:
+                        closest_name, closest_item, closest_distance = min(
+                            closest_items, key=lambda item: item[2]
+                        )
+                        print(
+                            f"Name: {closest_name}\n"
+                            f"Distance: {closest_distance:.2f}\n"
+                            f"Coords: {closest_item['x']}x{closest_item['y']}\n"
+                            f"Dimensions: {closest_item['width']}x{closest_item['height']}\n"
+                            f"Walkable: {closest_item['walkable']}\n"
+                            f"Destroy_on_impact: {closest_item['destroy_on_impact']}\n"
+                            f"Damage: {closest_item['damage']}\n"
+                            f"Gold: {closest_item['gold']}\n"
+                            f"Xp: {closest_item['xp']}"
+                        )
 
             keys = pygame.key.get_pressed()
             move_x = (keys[pygame.K_d] - keys[pygame.K_a]) * crossbar.speed
@@ -246,13 +272,16 @@ def main():
                 image = item_images[item_data["path"]]
                 position = (crossbar.relateX(item_data["x"]), crossbar.relateY(item_data["y"]))
                 screen.blit(image, position)
+                image_rect = image.get_rect(topleft=position)
+                pygame.draw.rect(screen, (0, 50, 0), image_rect, width=1)
+                pygame.draw.rect(screen, (255, 0, 0), (crossbar.relateX(item_data["x"]), crossbar.relateY(item_data["y"]), 1, 1))
 
             crossbar.draw(screen)
 
             image = pygame.image.load(images[item_to_add]).convert_alpha()
             image.set_alpha(128)
             screen.blit(image, (SCREEN_WIDTH//2, SCREEN_HEIGHT//2))
-
+            pygame.draw.rect(screen, (152, 179, 0), (SCREEN_WIDTH//2, SCREEN_HEIGHT//2, width, height), width=1)
             pygame.display.flip()
             clock.tick(60)
     else:
