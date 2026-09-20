@@ -60,11 +60,11 @@ class Player:
 
     def drawstats(self, screen, healthcolour, goldcolour, levelcolour, xpcolour):
 
-        transparent_surface = pygame.Surface((160, 100), pygame.SRCALPHA)
+        transparent_surface = pygame.Surface((180, 100), pygame.SRCALPHA)
         transparent_surface.fill(TRANSPARENT)
         screen.blit(transparent_surface, (10, 10))
 
-        health = self.font.render(f"Health: {self.health}", True, healthcolour)
+        health = self.font.render(f"Health: {self.health}/100", True, healthcolour)
         gold = self.font.render(f"Gold: {self.gold}", True, goldcolour)
         level = self.font.render(f"Level: {self.level}", True, levelcolour)
         xp = self.font.render(f"XP: {self.xp}", True, xpcolour)
@@ -234,7 +234,6 @@ while running:
 
     screen.fill(BG_COLOUR)
 
-    pygame.draw.rect(screen, RED, (player.relateX(400), player.relateY(0), 10, 10))
 
     pygame.draw.rect(screen, RED, (player.relateX(border["XLeft"]), player.relateY(0), 10, border["YBottom"]))
     pygame.draw.rect(screen, RED, (player.relateX(border["XRight"] - 10), player.relateY(0), 10, border["YBottom"]))

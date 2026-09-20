@@ -58,5 +58,89 @@
         "damage": 1,
         "gold": 0,
         "xp": 0
+    },
+    "coin0": {
+        "path": "maps/Tiny Village Pack/Tiny Adventure Pack/Other/Coin.png",
+        "x": 310,
+        "y": 810,
+        "width": 5,
+        "height": 5,
+        "walkable": true,
+        "destroy_on_impact": true,
+        "damage": 0,
+        "gold": 5,
+        "xp": 0
+    },
+    "coin1": {
+        "path": "maps/Tiny Village Pack/Tiny Adventure Pack/Other/Coin.png",
+        "x": 315,
+        "y": 800,
+        "width": 5,
+        "height": 5,
+        "walkable": true,
+        "destroy_on_impact": true,
+        "damage": 0,
+        "gold": 5,
+        "xp": 0
+    },
+    "coin2": {
+        "path": "maps/Tiny Village Pack/Tiny Adventure Pack/Other/Coin.png",
+        "x": 330,
+        "y": 820,
+        "width": 5,
+        "height": 5,
+        "walkable": true,
+        "destroy_on_impact": true,
+        "damage": 0,
+        "gold": 5,
+        "xp": 0
+    },
+    "coin3": {
+        "path": "maps/Tiny Village Pack/Tiny Adventure Pack/Other/Coin.png",
+        "x": 320,
+        "y": 830,
+        "width": 5,
+        "height": 5,
+        "walkable": true,
+        "destroy_on_impact": true,
+        "damage": 0,
+        "gold": 5,
+        "xp": 0
+    },
+    "veg": {
+        "path": "maps/Tiny Village Pack/Outdoors/Farm/blue_veggie.png",
+        "x": 310,
+        "y": 134,
+        "width": 7,
+        "height": 5,
+        "walkable": true,
+        "destroy_on_impact": false,
+        "damage": 0,
+        "gold": 0,
+        "xp": 0
+    },
+    "Bench1": {
+        "path": "maps/Tiny Village Pack/Outdoors/Other/bench.png",
+        "x": 355,
+        "y": 228,
+        "width": 48,
+        "height": 16,
+        "walkable": false,
+        "destroy_on_impact": false,
+        "damage": 0,
+        "gold": 0,
+        "xp": 0
+    },
+    "Bench2": {
+        "path": "maps/Tiny Village Pack/Outdoors/Other/bench.png",
+        "x": 153,
+        "y": 208,
+        "width": 48,
+        "height": 16,
+        "walkable": false,
+        "destroy_on_impact": false,
+        "damage": 0,
+        "gold": 0,
+        "xp": 0
     }
 }
