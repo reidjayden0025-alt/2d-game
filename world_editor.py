@@ -249,6 +249,10 @@ def main():
 
             crossbar.draw(screen)
 
+            image = pygame.image.load(images[item_to_add]).convert_alpha()
+            image.set_alpha(128)
+            screen.blit(image, (SCREEN_WIDTH//2, SCREEN_HEIGHT//2))
+
             pygame.display.flip()
             clock.tick(60)
     else:
