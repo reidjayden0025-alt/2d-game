@@ -109,9 +109,11 @@ crossbar = crossbar(0, 0, 1)
 P_COOLDOWN_MS = 500
 last_p_press = 0
 pastes = 0
+name = ""
 
 def main():
     global last_p_press
+
 
     json_file = input("Input: which json do you want to edit? world_items.json or inventory_item_pics.png:    ")
 
@@ -148,11 +150,13 @@ def main():
             print(f"INSTRUCTION: check the game window")
             print(f"INSTRUCTION: WASD = move; Arrows = fast move")
             print(f"INSTRUCTION: P: paste")
+            print(f"INSTRUCTION: U: undo paste")
             print(f"INSTRUCTION: C: get coords")
 
     
 
         running = True
+        name = ""
 
         while running:
 
@@ -195,6 +199,19 @@ def main():
                             item_images[image_path] = pygame.image.load(image_path).convert_alpha()
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_c:
                     print(f"X: {crossbar.x}; Y: {crossbar.y}")
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_u:
+                    with open("world_items.json", "r", encoding="utf-8") as f:
+                        data = json.load(f)
+
+                        key_to_delete = f"{item_name}{pastes}"
+                        pastes -= 1
+
+                        if key_to_delete in data:
+                            data.pop(key_to_delete, None)
+                        with open("world_items.json", "w", encoding="utf-8") as f:
+                            json.dump(data, f, indent=4)
+
+                        world_items.pop(key_to_delete, None)
 
             keys = pygame.key.get_pressed()
             move_x = (keys[pygame.K_d] - keys[pygame.K_a]) * crossbar.speed
