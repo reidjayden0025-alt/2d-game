@@ -134,9 +134,12 @@ def main():
 
     walkQ = input("Input: Should the player be able to walk over the object? Y/N:    ")
     walkable = True if walkQ == "Y" else False
-
-    dq = input("Input: should the object be destroyed on impact? Y/N:    ")
-    destroy_on_impact = True if dq == "Y" else False
+    
+    if walkable:
+        dq = input("Input: should the object be destroyed on impact? Y/N:    ")
+        destroy_on_impact = True if dq == "Y" else False
+    else:
+        destroy_on_impact = False
 
     
     if item_to_add in images:
