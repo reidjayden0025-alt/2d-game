@@ -124,7 +124,7 @@ clock = pygame.time.Clock()
 player = Player(
     15,
     border["YBottom"] / 2,
-    5,
+    1,
     100,
     16,
     "maps/Tiny Village Pack/Tiny Adventure Pack/Character/Char_one",
@@ -258,23 +258,36 @@ while running:
 
     keys = pygame.key.get_pressed()
 
-    move_x = (keys[pygame.K_d] - keys[pygame.K_a]) * player.speed
-    move_y = (keys[pygame.K_s] - keys[pygame.K_w]) * player.speed
+    move_x = 0
+    move_y = 0
 
-    directions = (
-        (pygame.K_s, "down"),
-        (pygame.K_d, "right"),
-        (pygame.K_w, "up"),
-        (pygame.K_a, "left"),
-    )
-
-    for key, direction in directions:
-        if keys[key]:
-            player.dir = direction
-            player.running = True
-            break
+    if keys[pygame.K_w]:
+        move_y = -player.speed
+        player.dir = "up"
+        player.running = True
+    elif keys[pygame.K_s]:
+        move_y = player.speed
+        player.dir = "down"
+        player.running = True
+    elif keys[pygame.K_a]:
+        move_x = -player.speed
+        player.dir = "left"
+        player.running = True
+    elif keys[pygame.K_d]:
+        move_x = player.speed
+        player.dir = "right"
+        player.running = True
     else:
         player.running = False
+
+    if not collides(player.x + move_x, player.y):
+        player.x += move_x
+
+    if not collides(player.x, player.y + move_y):
+        player.y += move_y
+
+    player.rect.topleft = player.x, player.y
+    update_items()
 
     if not collides(player.x + move_x, player.y):
         player.x += move_x
