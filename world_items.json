@@ -11,18 +11,6 @@
         "gold": 0,
         "xp": 0
     },
-    "WH4Red": {
-        "path": "maps/Tiny Village Pack/Outdoors/Buildings/Wooden_House4_red.png",
-        "x": 200,
-        "y": 400,
-        "width": 80,
-        "height": 80,
-        "walkable": true,
-        "destroy_on_impact": false,
-        "damage": 0,
-        "gold": 0,
-        "xp": 0
-    },
     "dirt path1": {
         "path": "maps/Tiny Village Pack/Tilesets/dirt path.png",
         "x": 206,
