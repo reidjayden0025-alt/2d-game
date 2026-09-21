@@ -6,7 +6,7 @@
         "width": 80,
         "height": 80,
         "walkable": false,
-        "destroy_on_impact": false,
+        "destroy_on_impact": true,
         "damage": 0,
         "gold": 0,
         "xp": 0
