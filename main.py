@@ -173,10 +173,12 @@ while running:
     keys = pygame.key.get_pressed()
     move_x = (keys[pygame.K_d] - keys[pygame.K_a]) * player.speed
     move_y = (keys[pygame.K_s] - keys[pygame.K_w]) * player.speed
+    if move_x != 0:
+        move_y = 0
 
     #animations
-    if keys[pygame.K_s]:
-        player.dir = "down"
+    if keys[pygame.K_a]:
+        player.dir = "left"
         player.running = True
     elif keys[pygame.K_d]:
         player.dir = "right"
@@ -184,9 +186,9 @@ while running:
     elif keys[pygame.K_w]:
         player.dir = "up"
         player.running = True
-    elif keys[pygame.K_a]:
-        player.dir = "left"
-        player.running = True
+    elif keys[pygame.K_s]:
+            player.dir = "down"
+            player.running = True
 
     if not (keys[pygame.K_w] or keys[pygame.K_a] or keys[pygame.K_s] or keys[pygame.K_d]):
         player.running = False
