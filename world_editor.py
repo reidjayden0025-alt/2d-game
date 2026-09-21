@@ -68,6 +68,7 @@ images = {
     "Farm:white_veggie.png": ("maps/Tiny Village Pack/Outdoors/Farm/white_veggie.png"),
     "Farm:white_veggie_2.png": ("maps/Tiny Village Pack/Outdoors/Farm/white_veggie_2.png"),
 
+    "dirt path.png": ("maps/Tiny Village Pack/Tilesets/dit path.png"),
     "Other:bench.png": ("maps/Tiny Village Pack/Outdoors/Other/bench.png"),
     "Other:mailbox.png": ("maps/Tiny Village Pack/Outdoors/Other/mailbox.png"),
     "Other:sign.png": ("maps/Tiny Village Pack/Outdoors/Other/sign.png"),
