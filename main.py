@@ -138,6 +138,7 @@ for item_data in world_items.values():
 def player_collides_with_buildings(x, y):
     player.rect = pygame.Rect(x, y, player.size, player.size)
     return any(
+        item_name not in excepting and
         not item_data.get("walkable", False)
         and
         player.rect.colliderect(
@@ -148,7 +149,7 @@ def player_collides_with_buildings(x, y):
                 item_data["height"],
             )
         )
-        for item_data in world_items.values()
+        for item_name, item_data in world_items.items()
     )
 
 
