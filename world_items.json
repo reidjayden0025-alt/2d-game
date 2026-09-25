@@ -8,6 +8,7 @@
         "walkable": true,
         "destroy_on_impact": true,
         "damage": 0,
+        "health": 0,
         "gold": 0,
         "xp": 0
     },
@@ -20,6 +21,7 @@
         "walkable": true,
         "destroy_on_impact": false,
         "damage": 0,
+        "health": 1,
         "gold": 0,
         "xp": 0
     }

@@ -22,6 +22,7 @@ class Player:
         self.attack_timer = 0
         self.rect = pygame.Rect(x, y, self.size, self.size)
         self.damn = False
+        self.gesond = False
         self.ching = False
         self.chong = False
         self.font = pygame.font.SysFont("roboto", 32)
@@ -89,6 +90,9 @@ class Player:
 
     def damage(self, damn):
         self.health -= damn
+
+    def heal(self, hoeveelheid):
+        self.health += hoeveelheid
 
     def recieve_money(self, ammount):
         self.gold += ammount
@@ -207,6 +211,14 @@ while running:
                     player.damage(item_data["damage"])
                     player.damn = True
 
+    # Health system
+    if frame_count % 10 == 0:
+            for item_name, item_data in world_items.items():
+                if item_name not in excepting:
+                    if player.rect.colliderect(pygame.Rect(item_data["x"], item_data["y"], item_data["width"], item_data["height"],)) and item_data["health"] > 0:
+                        player.heal(item_data["health"])
+                        player.gesond = True
+
     # Gold system
     for item_name, item_data in world_items.items():
         if item_name not in excepting:
@@ -250,6 +262,7 @@ while running:
             screen.blit(image, position)
 
     c1 = RED if player.damn else WHITE
+    c1 = LIGHT_GREEN if player.gesond else WHITE
     c2 = YELLOW if player.ching else GOLD
     c4 = LIGHT_GREEN if player.chong else GREEN
 
@@ -257,8 +270,12 @@ while running:
 
     if frame_count % 3 == 0:
         player.damn = False
+        player.gesond = False
         player.ching = False
         player.chong = False
+
+    if player.health > 100:
+        player.health = 100
 
     # drawing the player
     frame_count += 1
