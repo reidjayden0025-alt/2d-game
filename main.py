@@ -3,6 +3,9 @@ from pathlib import Path
 
 import pygame
 
+wrld_file = "world_items.json"
+tel = False
+
 
 class Player:
     def __init__(self, x, y, speed, health, size, graphic):
@@ -129,8 +132,11 @@ clock = pygame.time.Clock()
 player = Player(15, border["YBottom"]/2, 5, 100, 32, "maps/Tiny Village Pack/Tiny Adventure Pack/Character/Char_one")
 
 
-with Path("world_items.json").open(encoding="utf-8") as items_file:
+with Path(wrld_file).open(encoding="utf-8") as items_file:
     world_items = json.load(items_file)
+
+with Path("telport_rects.json").open(encoding="utf-8") as file:
+    teleport_rectangles = json.load(file)
 
 item_images = {}
 for item_data in world_items.values():
@@ -172,6 +178,10 @@ while running:
                 player.attacking = True
                 player.attack_frame = 0
                 player.attack_timer = 0
+
+    if tel == True:
+        with Path(wrld_file).open(encoding="utf-8") as items_file:
+            world_items = json.load(items_file)
 
     # Controlls:
     keys = pygame.key.get_pressed()
@@ -237,6 +247,12 @@ while running:
             if player.rect.colliderect(pygame.Rect(item_data["x"], item_data["y"], item_data["width"], item_data["height"],)) and item_data["destroy_on_impact"]:
                 excepting.add(item_name)
 
+    # teleporting
+    for item_name, item_data in teleport_rectangles.items():
+        if player.rect.colliderect(pygame.Rect(item_data["x"], item_data["y"], item_data["width"], item_data["height"],)) and wrld_file == item_data["application_wrld"]:
+            wrld_file = item_data["wrld"]
+            tel = True
+
     # Bordering:
     if player.x <= border["XLeft"]:
         player.x = border["XLeft"]
@@ -273,6 +289,7 @@ while running:
         player.gesond = False
         player.ching = False
         player.chong = False
+        tel = False
 
     if player.health > 100:
         player.health = 100

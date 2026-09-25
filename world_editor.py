@@ -117,7 +117,7 @@ def main():
     global last_p_press
 
 
-    json_file = "world_items.json"
+    json_file = input("which world file do you want to edit?    ")
 
     if os.path.exists(json_file):
         with open(json_file, "r") as f:
