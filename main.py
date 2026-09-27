@@ -4,8 +4,50 @@ from pathlib import Path
 import pygame
 
 
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+
+CAMERA_ZOOM = 2
+
+PLAYER_START_X = 15
+PLAYER_SPEED = 2
+PLAYER_HEALTH = 100
+PLAYER_MAX_HEALTH = 100
+PLAYER_STARTING_GOLD = 50
+PLAYER_STARTING_LEVEL = 1
+PLAYER_SIZE = 16
+PLAYER_GRAPHIC_PATH = (
+    "maps/Tiny Village Pack/Tiny Adventure Pack/Character/Char_one"
+)
+
+WORLD_WIDTH = 3200
+WORLD_HEIGHT = 1600
+
+BG_COLOUR = (30, 150, 30)
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+
+border = {
+    "XLeft": 0,
+    "XRight": WORLD_WIDTH,
+    "YTop": 0,
+    "YBottom": WORLD_HEIGHT,
+}
+
+
 class Player:
-    def __init__(self, x, y, speed, health, max_health, gold, level, size, graphic):
+    def __init__(
+        self,
+        x,
+        y,
+        speed,
+        health,
+        max_health,
+        gold,
+        level,
+        size,
+        graphic,
+    ):
         self.x = x
         self.y = y
         self.speed = speed
@@ -22,8 +64,8 @@ class Player:
         self.attack_frame = 0
         self.attack_timer = 0
         self.rect = pygame.Rect(x, y, size, size)
-        self.damn = self.ching = self.chong = False
         self.font = pygame.font.SysFont("arial", 28)
+
         self.animation_sheets = {
             state: {
                 direction: pygame.image.load(
@@ -38,41 +80,104 @@ class Player:
             )
         }
 
+    def world_to_screen(self, world_x, world_y):
+        screen_x = (
+            SCREEN_WIDTH / 2
+            + (world_x - self.x) * CAMERA_ZOOM
+        )
+        screen_y = (
+            SCREEN_HEIGHT / 2
+            + (world_y - self.y) * CAMERA_ZOOM
+        )
+        return screen_x, screen_y
+
     def draw(self, screen, walk_frame):
-        sheet = self.animation_sheets["attack" if self.attacking else ("walk" if self.running else "idle")][self.dir]
-        frame_width = 23 if self.attacking and self.dir in ("down", "up") else 16
-        frame_height = sheet.get_height() if self.attacking else 16
-        frame_x = self.attack_frame * frame_width if self.attacking else walk_frame
-        image = sheet.subsurface(pygame.Rect(frame_x, 0, frame_width, frame_height)).copy()
-        screen.blit(pygame.transform.scale(image, (self.size, self.size)), (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2))
+        if self.attacking:
+            sheet = self.animation_sheets["attack"][self.dir]
+            frame_width = 23 if self.dir in ("down", "up") else 16
+            frame_height = sheet.get_height()
+            frame_x = self.attack_frame * frame_width
+        else:
+            animation = "walk" if self.running else "idle"
+            sheet = self.animation_sheets[animation][self.dir]
+            frame_width = 16
+            frame_height = 16
+            frame_x = walk_frame
+
+        image = sheet.subsurface(
+            pygame.Rect(
+                frame_x,
+                0,
+                frame_width,
+                frame_height,
+            )
+        ).copy()
+
+        player_size = int(self.size * CAMERA_ZOOM)
+
+        image = pygame.transform.scale(
+            image,
+            (player_size, player_size),
+        )
+
+        image_x = SCREEN_WIDTH // 2 - player_size // 2
+        image_y = SCREEN_HEIGHT // 2 - player_size // 2
+
+        screen.blit(image, (image_x, image_y))
 
     def drawstats(self, screen):
-        pygame.draw.rect(screen, (20, 20, 25), pygame.Rect(15, 15, 260, 140))
-        pygame.draw.rect(screen, (50, 50, 50), pygame.Rect(25, 25, 220, 22))
-        health_width = int(220 * max(0, min(1, self.health / self.max_health)))
-        pygame.draw.rect(screen, (220, 50, 50), pygame.Rect(25, 25, health_width, 22))
-        for text, position in (
+        pygame.draw.rect(
+            screen,
+            (20, 20, 25),
+            pygame.Rect(15, 15, 260, 140),
+        )
+
+        pygame.draw.rect(
+            screen,
+            (50, 50, 50),
+            pygame.Rect(25, 25, 220, 22),
+        )
+
+        health_ratio = max(
+            0,
+            min(1, self.health / self.max_health),
+        )
+
+        health_width = int(220 * health_ratio)
+
+        pygame.draw.rect(
+            screen,
+            (220, 50, 50),
+            pygame.Rect(25, 25, health_width, 22),
+        )
+
+        stats = (
             (f"HP: {self.health}/{self.max_health}", (30, 55)),
             (f"Gold: {self.gold}", (30, 85)),
             (f"Level: {self.level}", (30, 110)),
             (f"XP: {self.xp}", (30, 135)),
-        ):
-            screen.blit(self.font.render(text, True, WHITE), position)
+        )
 
-    def relateX(self, value):
-        return value + SCREEN_WIDTH / 2 - self.x
-
-    def relateY(self, value):
-        return value + SCREEN_HEIGHT / 2 - self.y
+        for text, position in stats:
+            rendered_text = self.font.render(
+                text,
+                True,
+                WHITE,
+            )
+            screen.blit(rendered_text, position)
 
     def damage(self, amount):
         self.health = max(0, self.health - amount)
 
     def heal(self, amount):
-        self.health = min(self.max_health, self.health + amount)
+        self.health = min(
+            self.max_health,
+            self.health + amount,
+        )
 
     def gain_xp(self, amount):
         self.xp += amount
+
         while self.xp >= 100:
             self.xp -= 100
             self.level += 1
@@ -82,175 +187,273 @@ class Player:
     def add_gold(self, amount):
         self.gold += amount
 
-    def recieve_money(self, amount):
-        self.add_gold(amount)
-
-    def recieve_xp(self, amount):
-        self.gain_xp(amount)
-
-
-# ============================================================================
-# GAME CONFIGURATION - EASILY CHANGEABLE SETTINGS
-# ============================================================================
-
-# Screen settings
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
-
-# Player settings
-PLAYER_START_X = 15
-PLAYER_START_Y_OFFSET = 1600 / 2  # Center of map
-PLAYER_SPEED = 10
-PLAYER_HEALTH = 100
-PLAYER_MAX_HEALTH = 100
-PLAYER_STARTING_GOLD = 50
-PLAYER_STARTING_LEVEL = 1
-PLAYER_SIZE = 32
-PLAYER_GRAPHIC_PATH = "maps/Tiny Village Pack/Tiny Adventure Pack/Character/Char_one"
-
-# Game world settings
-WORLD_WIDTH = 3200
-WORLD_HEIGHT = 1600
-
-# Colors
-BG_COLOUR = (30, 150, 30)
-WHITE = (255, 255, 255)
-RED = (255, 0, 0)
-GOLD = (255, 255, 0)
-YELLOW = (201, 165, 20)
-BLUE = (0, 0, 255)
-GREEN = (74, 196, 37)
-LIGHT_GREEN = (60, 255, 0)
-
-# Transparency
-TRANSPARENCY_ALPHA = 128
-TRANSPARENT = (48, 84, 2, TRANSPARENCY_ALPHA)
-
-# World border
-border = {
-    "XLeft": 0,
-    "XRight": WORLD_WIDTH,
-    "YTop": 0,
-    "YBottom": WORLD_HEIGHT,
-}
-
-# ============================================================================
-# GAME INITIALIZATION
-# ============================================================================
 
 pygame.init()
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
+screen = pygame.display.set_mode(
+    (SCREEN_WIDTH, SCREEN_HEIGHT)
+)
+
 pygame.display.set_caption("Dungeons of Dagestan")
+
 clock = pygame.time.Clock()
 
-# Create player with configurable settings
 player = Player(
     x=PLAYER_START_X,
-    y=PLAYER_START_Y_OFFSET,
+    y=WORLD_HEIGHT / 2,
     speed=PLAYER_SPEED,
     health=PLAYER_HEALTH,
     max_health=PLAYER_MAX_HEALTH,
     gold=PLAYER_STARTING_GOLD,
     level=PLAYER_STARTING_LEVEL,
     size=PLAYER_SIZE,
-    graphic=PLAYER_GRAPHIC_PATH
+    graphic=PLAYER_GRAPHIC_PATH,
 )
 
-# Load world items from JSON
 with Path("world_items.json").open(encoding="utf-8") as items_file:
     world_items = json.load(items_file)
 
-# Preload item images
 item_images = {}
+
 for item_data in world_items.values():
     path = item_data["path"]
-    item_images.setdefault(path, pygame.image.load(path).convert_alpha())
+
+    if path not in item_images:
+        item_images[path] = pygame.image.load(
+            path
+        ).convert_alpha()
 
 
 def player_collides_with_buildings(x, y):
-    player.rect = pygame.Rect(x, y, player.size, player.size)
+    player.rect = pygame.Rect(
+        x,
+        y,
+        player.size,
+        player.size,
+    )
+
     return any(
         not item.get("walkable", False)
-        and player.rect.colliderect(pygame.Rect(item["x"], item["y"], item["width"], item["height"]))
+        and player.rect.colliderect(
+            pygame.Rect(
+                item["x"],
+                item["y"],
+                item["width"],
+                item["height"],
+            )
+        )
         for item in world_items.values()
     )
 
 
-# ============================================================================
-# MAIN GAME LOOP
-# ============================================================================
-
 running = True
-frame_count = walk_frame = 0
+frame_count = 0
+walk_frame = 0
 removed_items = set()
 
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE and not player.attacking:
+
+        elif (
+            event.type == pygame.KEYDOWN
+            and event.key == pygame.K_SPACE
+            and not player.attacking
+        ):
             player.attacking = True
-            player.attack_frame = player.attack_timer = 0
+            player.attack_frame = 0
+            player.attack_timer = 0
 
     keys = pygame.key.get_pressed()
-    move_x = (keys[pygame.K_d] - keys[pygame.K_a]) * player.speed
-    move_y = (keys[pygame.K_s] - keys[pygame.K_w]) * player.speed
-    if move_x:
+
+    move_x = (
+        keys[pygame.K_d] - keys[pygame.K_a]
+    ) * player.speed
+
+    move_y = (
+        keys[pygame.K_s] - keys[pygame.K_w]
+    ) * player.speed
+
+    if move_x != 0:
         move_y = 0
-    
-    for key, direction in ((pygame.K_a, "left"), (pygame.K_d, "right"), (pygame.K_w, "up"), (pygame.K_s, "down")):
-        if keys[key]:
-            player.dir, player.running = direction, True
-            break
+
+    if keys[pygame.K_a]:
+        player.dir = "left"
+        player.running = True
+    elif keys[pygame.K_d]:
+        player.dir = "right"
+        player.running = True
+    elif keys[pygame.K_w]:
+        player.dir = "up"
+        player.running = True
+    elif keys[pygame.K_s]:
+        player.dir = "down"
+        player.running = True
     else:
         player.running = False
 
-    if not player_collides_with_buildings(player.x + move_x, player.y):
+    if not player_collides_with_buildings(
+        player.x + move_x,
+        player.y,
+    ):
         player.x += move_x
-    if not player_collides_with_buildings(player.x, player.y + move_y):
+
+    if not player_collides_with_buildings(
+        player.x,
+        player.y + move_y,
+    ):
         player.y += move_y
+
+    player.x = max(
+        border["XLeft"],
+        min(
+            player.x,
+            border["XRight"] - player.size,
+        ),
+    )
+
+    player.y = max(
+        border["YTop"],
+        min(
+            player.y,
+            border["YBottom"] - player.size,
+        ),
+    )
 
     for name, item in world_items.items():
         if name in removed_items:
             continue
-        collision = player.rect.colliderect(pygame.Rect(item["x"], item["y"], item["width"], item["height"]))
-        if collision and frame_count % 10 == 0 and item.get("damage", 0) > 0:
-            player.damage(item["damage"])
-            player.damn = True
-        if collision and item.get("gold", 0) > 0:
-            player.add_gold(item["gold"])
-            player.ching = True
-        if collision and item.get("xp", 0) > 0:
-            player.gain_xp(item["xp"])
-            player.chong = True
-        if collision and item.get("destroy_on_impact", False):
-            removed_items.add(name)
 
-    player.x = max(border["XLeft"], min(player.x, border["XRight"] - player.size))
-    player.y = max(border["YTop"], min(player.y, border["YBottom"] - player.size))
-    
+        item_rect = pygame.Rect(
+            item["x"],
+            item["y"],
+            item["width"],
+            item["height"],
+        )
+
+        if player.rect.colliderect(item_rect):
+            if (
+                frame_count % 10 == 0
+                and item.get("damage", 0) > 0
+            ):
+                player.damage(item["damage"])
+
+            if item.get("gold", 0) > 0:
+                player.add_gold(item["gold"])
+
+            if item.get("xp", 0) > 0:
+                player.gain_xp(item["xp"])
+
+            if item.get("destroy_on_impact", False):
+                removed_items.add(name)
+
     screen.fill(BG_COLOUR)
-    pygame.draw.rect(screen, RED, (player.relateX(border["XLeft"]), player.relateY(0), 10, border["YBottom"]))
-    pygame.draw.rect(screen, RED, (player.relateX(border["XRight"] - 10), player.relateY(0), 10, border["YBottom"]))
-    pygame.draw.rect(screen, RED, (player.relateX(0), player.relateY(border["YTop"]), border["XRight"], 10))
-    pygame.draw.rect(screen, RED, (player.relateX(0), player.relateY(border["YBottom"] - 10), border["XRight"], 10))
-    
+
+    border_left = player.world_to_screen(
+        border["XLeft"],
+        0,
+    )
+
+    border_right = player.world_to_screen(
+        border["XRight"] - 10,
+        0,
+    )
+
+    border_top = player.world_to_screen(
+        0,
+        border["YTop"],
+    )
+
+    border_bottom = player.world_to_screen(
+        0,
+        border["YBottom"] - 10,
+    )
+
+    pygame.draw.rect(
+        screen,
+        RED,
+        (
+            border_left[0],
+            border_left[1],
+            10 * CAMERA_ZOOM,
+            WORLD_HEIGHT * CAMERA_ZOOM,
+        ),
+    )
+
+    pygame.draw.rect(
+        screen,
+        RED,
+        (
+            border_right[0],
+            border_right[1],
+            10 * CAMERA_ZOOM,
+            WORLD_HEIGHT * CAMERA_ZOOM,
+        ),
+    )
+
+    pygame.draw.rect(
+        screen,
+        RED,
+        (
+            border_top[0],
+            border_top[1],
+            WORLD_WIDTH * CAMERA_ZOOM,
+            10 * CAMERA_ZOOM,
+        ),
+    )
+
+    pygame.draw.rect(
+        screen,
+        RED,
+        (
+            border_bottom[0],
+            border_bottom[1],
+            WORLD_WIDTH * CAMERA_ZOOM,
+            10 * CAMERA_ZOOM,
+        ),
+    )
+
     for name, item in world_items.items():
-        if name not in removed_items:
-            screen.blit(item_images[item["path"]], (player.relateX(item["x"]), player.relateY(item["y"])))
+        if name in removed_items:
+            continue
+
+        image = item_images[item["path"]]
+
+        image_width = int(image.get_width() * CAMERA_ZOOM)
+        image_height = int(image.get_height() * CAMERA_ZOOM)
+
+        image = pygame.transform.scale(
+            image,
+            (image_width, image_height),
+        )
+
+        position = player.world_to_screen(
+            item["x"],
+            item["y"],
+        )
+
+        screen.blit(image, position)
 
     player.drawstats(screen)
+
     frame_count += 1
+
     if frame_count % 10 == 0 and player.running:
         walk_frame = (walk_frame + 16) % 96
+
     if player.attacking:
         player.attack_timer += 1
+
         if player.attack_timer % 6 == 0:
             player.attack_frame += 1
+
             if player.attack_frame >= 6:
                 player.attacking = False
                 player.attack_frame = 0
+
     player.draw(screen, walk_frame)
+
     pygame.display.flip()
     clock.tick(60)
 
