@@ -4,14 +4,14 @@ import pygame
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
-CAMERA_ZOOM = 1.5
+CAMERA_ZOOM = 2
 PLAYER_START_X = 15
-PLAYER_SPEED = 10
+PLAYER_SPEED = 2
 PLAYER_HEALTH = 100
 PLAYER_MAX_HEALTH = 100
 PLAYER_STARTING_GOLD = 50
 PLAYER_STARTING_LEVEL = 1
-PLAYER_SIZE = 32
+PLAYER_SIZE = 16
 PLAYER_GRAPHIC_PATH = "maps/Tiny Village Pack/Tiny Adventure Pack/Character/Char_one"
 WORLD_WIDTH = 3200
 WORLD_HEIGHT = 1600
@@ -91,7 +91,6 @@ player = Player(PLAYER_START_X, WORLD_HEIGHT / 2, PLAYER_SPEED, PLAYER_HEALTH, P
 with Path("world_items.json").open(encoding="utf-8") as items_file:
     world_items = json.load(items_file)
 
-item_images = {item_data["path"]: pygame.image.load(item_data["path"]).convert_alpha() for item_data in world_items.values() if item_data["path"] not in [p for p in item_images.keys()] if "item_images" in locals()}
 item_images = {}
 for item_data in world_items.values():
     path = item_data["path"]
@@ -118,7 +117,7 @@ while running:
     keys = pygame.key.get_pressed()
     move_x = (keys[pygame.K_d] - keys[pygame.K_a]) * player.speed
     move_y = (keys[pygame.K_s] - keys[pygame.K_w]) * player.speed
-    if move_x:
+    if move_x != 0:
         move_y = 0
 
     for key, direction in ((pygame.K_a, "left"), (pygame.K_d, "right"), (pygame.K_w, "up"), (pygame.K_s, "down")):
