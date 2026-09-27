@@ -89,20 +89,78 @@ class Player:
         self.gain_xp(amount)
 
 
-border = {"XLeft": 0, "XRight": 3200, "YTop": 0, "YBottom": 1600}
-SCREEN_WIDTH, SCREEN_HEIGHT = 800, 600
+# ============================================================================
+# GAME CONFIGURATION - EASILY CHANGEABLE SETTINGS
+# ============================================================================
+
+# Screen settings
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+
+# Player settings
+PLAYER_START_X = 15
+PLAYER_START_Y_OFFSET = 1600 / 2  # Center of map
+PLAYER_SPEED = 10
+PLAYER_HEALTH = 100
+PLAYER_MAX_HEALTH = 100
+PLAYER_STARTING_GOLD = 50
+PLAYER_STARTING_LEVEL = 1
+PLAYER_SIZE = 32
+PLAYER_GRAPHIC_PATH = "maps/Tiny Village Pack/Tiny Adventure Pack/Character/Char_one"
+
+# Game world settings
+WORLD_WIDTH = 3200
+WORLD_HEIGHT = 1600
+
+# Colors
 BG_COLOUR = (30, 150, 30)
-WHITE, RED = (255, 255, 255), (255, 0, 0)
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+GOLD = (255, 255, 0)
+YELLOW = (201, 165, 20)
+BLUE = (0, 0, 255)
+GREEN = (74, 196, 37)
+LIGHT_GREEN = (60, 255, 0)
+
+# Transparency
+TRANSPARENCY_ALPHA = 128
+TRANSPARENT = (48, 84, 2, TRANSPARENCY_ALPHA)
+
+# World border
+border = {
+    "XLeft": 0,
+    "XRight": WORLD_WIDTH,
+    "YTop": 0,
+    "YBottom": WORLD_HEIGHT,
+}
+
+# ============================================================================
+# GAME INITIALIZATION
+# ============================================================================
 
 pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Dungeons of Dagestan")
 clock = pygame.time.Clock()
-player = Player(15, border["YBottom"] / 2, 10, 100, 100, 50, 1, 32, "maps/Tiny Village Pack/Tiny Adventure Pack/Character/Char_one")
 
+# Create player with configurable settings
+player = Player(
+    x=PLAYER_START_X,
+    y=PLAYER_START_Y_OFFSET,
+    speed=PLAYER_SPEED,
+    health=PLAYER_HEALTH,
+    max_health=PLAYER_MAX_HEALTH,
+    gold=PLAYER_STARTING_GOLD,
+    level=PLAYER_STARTING_LEVEL,
+    size=PLAYER_SIZE,
+    graphic=PLAYER_GRAPHIC_PATH
+)
+
+# Load world items from JSON
 with Path("world_items.json").open(encoding="utf-8") as items_file:
     world_items = json.load(items_file)
 
+# Preload item images
 item_images = {}
 for item_data in world_items.values():
     path = item_data["path"]
@@ -118,9 +176,14 @@ def player_collides_with_buildings(x, y):
     )
 
 
+# ============================================================================
+# MAIN GAME LOOP
+# ============================================================================
+
 running = True
 frame_count = walk_frame = 0
 removed_items = set()
+
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -134,6 +197,7 @@ while running:
     move_y = (keys[pygame.K_s] - keys[pygame.K_w]) * player.speed
     if move_x:
         move_y = 0
+    
     for key, direction in ((pygame.K_a, "left"), (pygame.K_d, "right"), (pygame.K_w, "up"), (pygame.K_s, "down")):
         if keys[key]:
             player.dir, player.running = direction, True
@@ -164,11 +228,13 @@ while running:
 
     player.x = max(border["XLeft"], min(player.x, border["XRight"] - player.size))
     player.y = max(border["YTop"], min(player.y, border["YBottom"] - player.size))
+    
     screen.fill(BG_COLOUR)
     pygame.draw.rect(screen, RED, (player.relateX(border["XLeft"]), player.relateY(0), 10, border["YBottom"]))
     pygame.draw.rect(screen, RED, (player.relateX(border["XRight"] - 10), player.relateY(0), 10, border["YBottom"]))
     pygame.draw.rect(screen, RED, (player.relateX(0), player.relateY(border["YTop"]), border["XRight"], 10))
     pygame.draw.rect(screen, RED, (player.relateX(0), player.relateY(border["YBottom"] - 10), border["XRight"], 10))
+    
     for name, item in world_items.items():
         if name not in removed_items:
             screen.blit(item_images[item["path"]], (player.relateX(item["x"]), player.relateY(item["y"])))
