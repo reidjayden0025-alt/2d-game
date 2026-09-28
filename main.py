@@ -15,7 +15,7 @@ PLAYER_SIZE = 16
 PLAYER_GRAPHIC_PATH = "maps/Tiny Village Pack/Tiny Adventure Pack/Character/Char_one"
 WORLD_WIDTH = 3200
 WORLD_HEIGHT = 1600
-BG_COLOUR = (30, 150, 30)
+BG_COLOUR = (200, 212, 93)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 
