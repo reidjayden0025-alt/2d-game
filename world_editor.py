@@ -56,6 +56,7 @@ images = {
     "Buildings:Wooden_House4_green.png": (buildings_path + "/Wooden_House4_green.png"),
     "Buildings:Wooden_House4_red.png": (buildings_path + "/Wooden_House4_red.png"),
 
+    "dirt path.png": ("maps/Tiny Village Pack/tilesets/dirt path.png"),
     "Farm:blue_veggie.png": ("maps/Tiny Village Pack/Outdoors/Farm/blue_veggie.png"),
     "Farm:blue_veggie_2.png": ("maps/Tiny Village Pack/Outdoors/Farm/blue_veggie_2.png"),
     "Farm:farm_spot_dry.png": ("maps/Tiny Village Pack/Outdoors/Farm/farm_spot_dry.png"),
