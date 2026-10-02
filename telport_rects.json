@@ -1,0 +1,10 @@
+{
+    "H1": {
+        "x": 10,
+        "y": 10,
+        "width": 30,
+        "height": 30,
+        "application_wrld": "world_items.json",
+        "wrld": "H1_int.json"
+    }
+}

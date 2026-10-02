@@ -118,7 +118,7 @@ def main():
     global last_p_press
 
 
-    json_file = "world_items.json"
+    json_file = input("which world file do you want to edit?    ")
 
     if os.path.exists(json_file):
         with open(json_file, "r") as f:
@@ -147,6 +147,7 @@ def main():
 
 
         damage = int(input("Input: How much damamge does the charechter take when coming into contact with this object? 0 if none:    "))
+        health = int(input("Input: How much healing does the charechter expierience when coming into contact with this object? 0 if none:    "))
         gold  = int(input("Input: How much gold is this item when picked up? 0 if not gold:    "))
         xp = int(input("Input: How much xp is this item when picked up? 0 if not xp:    "))
 
@@ -191,6 +192,7 @@ def main():
                             "walkable": walkable,
                             "destroy_on_impact": destroy_on_impact,
                             "damage": damage,
+                            "health": health,
                             "gold": gold,
                             "xp": xp
                         }

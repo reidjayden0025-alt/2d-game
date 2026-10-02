@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 import pygame
 
+# Constants & Configuration
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 CAMERA_ZOOM = 2
@@ -18,6 +19,15 @@ WORLD_HEIGHT = 1600
 BG_COLOUR = (200, 212, 93)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+LIGHT_GREEN = (144, 238, 144)
+YELLOW = (255, 255, 0)
+GOLD = (255, 215, 0)
+TRANSPARENT = (0, 0, 0, 0)
+
+wrld_file = "world_items.json"
+tel = False
+excepting = set()
 
 border = {"XLeft": 0, "XRight": WORLD_WIDTH, "YTop": 0, "YBottom": WORLD_HEIGHT}
 
@@ -32,11 +42,18 @@ class Player:
         self.size = size
         self.graphic = graphic
         self.dir = "down"
-        self.running = self.attacking = False
-        self.attack_frame = self.attack_timer = 0
-        self.rect = pygame.Rect(x, y, size, size)
-        self.font = pygame.font.SysFont("arial", 28)
-        self.animation_sheets = {
+        self.running = False
+        self.attacking = False
+        self.attack_frame = 0
+        self.attack_timer = 0
+        self.rect = pygame.Rect(x, y, self.size, self.size)
+        self.damn = False
+        self.gesond = False
+        self.ching = False
+        self.chong = False
+        self.font = pygame.font.SysFont("roboto", 32)
+
+        self.animation_sheets = {  # dont get confused looking at this, it's only 3 nested dictionairies that initialise animated images by themselves
             state: {
                 direction: pygame.image.load(
                     f"{graphic}/{folder}/{prefix}{direction}.png"
@@ -57,43 +74,35 @@ class Player:
         )
 
     def draw(self, screen, walk_frame):
-        sheet = self.animation_sheets[
-            "attack" if self.attacking else ("walk" if self.running else "idle")
-        ][self.dir]
+        if self.attacking:
+            player_sheet = self.animation_sheets["attack"][self.dir]
+            frame_width = 23 if self.dir in ("down", "up") else 16
+            frame_height = player_sheet.get_height()
+            frame_x = self.attack_frame * frame_width
+        else:
+            animation = "walk" if self.running else "idle"
+            player_sheet = self.animation_sheets[animation][self.dir]
+            frame_width = 16
+            frame_height = 16
+            frame_x = walk_frame
 
-        frame_width = (
-            23 if self.attacking and self.dir in ("down", "up") else 16
-        )
-        frame_x = (
-            self.attack_frame * frame_width
-            if self.attacking
-            else walk_frame
-        )
-
-        image = sheet.subsurface(
-            pygame.Rect(
-                frame_x,
-                0,
-                frame_width,
-                sheet.get_height() if self.attacking else 16,
-            )
-        ).copy()
-
+        player_image = player_sheet.subsurface(pygame.Rect(frame_x, 0, frame_width, frame_height)).copy()
         player_size = int(self.size * CAMERA_ZOOM)
-        image = pygame.transform.scale(
-            image,
-            (player_size, player_size),
-        )
-
+        player_image = pygame.transform.scale(player_image, (player_size, player_size))
         screen.blit(
-            image,
+            player_image,
             (
                 SCREEN_WIDTH // 2 - player_size // 2,
                 SCREEN_HEIGHT // 2 - player_size // 2,
             ),
         )
 
-    def drawstats(self, screen):
+    def drawstats(self, screen, healthcolour=WHITE, goldcolour=GOLD, levelcolour=WHITE, xpcolour=GREEN):
+        # Combined transparent HUD and rendered text display
+        transparent_surface = pygame.Surface((180, 100), pygame.SRCALPHA)
+        transparent_surface.fill(TRANSPARENT)
+        screen.blit(transparent_surface, (10, 10))
+
         pygame.draw.rect(
             screen,
             (20, 20, 25),
@@ -116,36 +125,51 @@ class Player:
             pygame.Rect(25, 25, health_width, 22),
         )
 
-        stats = (
-            (f"HP: {self.health}/{self.max_health}", (30, 55)),
-            (f"Gold: {self.gold}", (30, 85)),
-            (f"Level: {self.level}", (30, 110)),
-            (f"XP: {self.xp}", (30, 135)),
-        )
+        health = self.font.render(f"Health: {self.health}/{self.max_health}", True, healthcolour)
+        gold = self.font.render(f"Gold: {self.gold}", True, goldcolour)
+        level = self.font.render(f"Level: {self.level}", True, levelcolour)
+        xp = self.font.render(f"XP: {self.xp}", True, xpcolour)
 
-        for text, position in stats:
-            screen.blit(
-                self.font.render(text, True, WHITE),
-                position,
-            )
+        health_rect = health.get_rect(topleft=(20, 20))
+        gold_rect = gold.get_rect(topleft=(20, 40))
+        level_rect = level.get_rect(topleft=(20, 60))
+        xp_rect = xp.get_rect(topleft=(20, 80))
 
-    def damage(self, amount):
-        self.health = max(0, self.health - amount)
+        screen.blit(health, health_rect)
+        screen.blit(gold, gold_rect)
+        screen.blit(level, level_rect)
+        screen.blit(xp, xp_rect)
 
-    def heal(self, amount):
-        self.health = min(self.max_health, self.health + amount)
+    def relateX(self, x):
+        X = x + SCREEN_WIDTH / 2 - self.x
+        return X
+
+    def relateY(self, y):
+        Y = y + SCREEN_HEIGHT / 2 - self.y
+        return Y
+
+    def damage(self, damn):
+        self.health = max(0, self.health - damn)
+
+    def heal(self, hoeveelheid):
+        self.health = min(self.max_health, self.health + hoeveelheid)
+
+    def recieve_money(self, ammount):
+        self.gold += ammount
+
+    def add_gold(self, amount):
+        self.gold += amount
+
+    def recieve_xp(self, ammount):
+        self.xp += ammount
 
     def gain_xp(self, amount):
         self.xp += amount
-
         while self.xp >= 100:
             self.xp -= 100
             self.level += 1
             self.max_health += 10
             self.health = self.max_health
-
-    def add_gold(self, amount):
-        self.gold += amount
 
 
 pygame.init()
@@ -170,8 +194,11 @@ player = Player(
     PLAYER_GRAPHIC_PATH,
 )
 
-with Path("world_items.json").open(encoding="utf-8") as items_file:
+with Path(wrld_file).open(encoding="utf-8") as items_file:
     world_items = json.load(items_file)
+
+with Path("telport_rects.json").open(encoding="utf-8") as file:
+    teleport_rectangles = json.load(file)
 
 item_images = {}
 
@@ -213,7 +240,6 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-
         elif (
             event.type == pygame.KEYDOWN
             and event.key == pygame.K_SPACE
@@ -223,6 +249,11 @@ while running:
             player.attack_frame = 0
             player.attack_timer = 0
 
+    if tel == True:
+        with Path(wrld_file).open(encoding="utf-8") as items_file:
+            world_items = json.load(items_file)
+
+    # Controlls:
     keys = pygame.key.get_pressed()
 
     move_x = (
@@ -261,6 +292,49 @@ while running:
     ):
         player.y += move_y
 
+    # Damage system
+    if frame_count % 10 == 0:
+        for item_name, item_data in world_items.items():
+            if item_name not in excepting and item_name not in removed_items:
+                if player.rect.colliderect(pygame.Rect(item_data["x"], item_data["y"], item_data["width"], item_data["height"])) and item_data.get("damage", 0) > 0:
+                    player.damage(item_data["damage"])
+                    player.damn = True
+
+    # Health system
+    if frame_count % 10 == 0:
+        for item_name, item_data in world_items.items():
+            if item_name not in excepting and item_name not in removed_items:
+                if player.rect.colliderect(pygame.Rect(item_data["x"], item_data["y"], item_data["width"], item_data["height"])) and item_data.get("health", 0) > 0:
+                    player.heal(item_data["health"])
+                    player.gesond = True
+
+    # Gold system
+    for item_name, item_data in world_items.items():
+        if item_name not in excepting and item_name not in removed_items:
+            if player.rect.colliderect(pygame.Rect(item_data["x"], item_data["y"], item_data["width"], item_data["height"])) and item_data.get("gold", 0) > 0:
+                player.recieve_money(item_data["gold"])
+                player.ching = True
+
+    # Xp system
+    for item_name, item_data in world_items.items():
+        if item_name not in excepting and item_name not in removed_items:
+            if player.rect.colliderect(pygame.Rect(item_data["x"], item_data["y"], item_data["width"], item_data["height"])) and item_data.get("xp", 0) > 0:
+                player.recieve_xp(item_data["xp"])
+                player.chong = True
+
+    for item_name, item_data in world_items.items():
+        if item_name not in excepting and item_name not in removed_items:
+            if player.rect.colliderect(pygame.Rect(item_data["x"], item_data["y"], item_data["width"], item_data["height"])) and item_data.get("destroy_on_impact", False):
+                excepting.add(item_name)
+                removed_items.add(item_name)
+
+    # Teleporting
+    for item_name, item_data in teleport_rectangles.items():
+        if player.rect.colliderect(pygame.Rect(item_data["x"], item_data["y"], item_data["width"], item_data["height"])) and wrld_file == item_data["application_wrld"]:
+            wrld_file = item_data["wrld"]
+            tel = True
+
+    # Bordering:
     player.x = max(
         border["XLeft"],
         min(
@@ -276,33 +350,6 @@ while running:
             border["YBottom"] - player.size,
         ),
     )
-
-    for name, item in world_items.items():
-        if name in removed_items:
-            continue
-
-        item_rect = pygame.Rect(
-            item["x"],
-            item["y"],
-            item["width"],
-            item["height"],
-        )
-
-        if player.rect.colliderect(item_rect):
-            if (
-                frame_count % 10 == 0
-                and item.get("damage", 0) > 0
-            ):
-                player.damage(item["damage"])
-
-            if item.get("gold", 0) > 0:
-                player.add_gold(item["gold"])
-
-            if item.get("xp", 0) > 0:
-                player.gain_xp(item["xp"])
-
-            if item.get("destroy_on_impact", False):
-                removed_items.add(name)
 
     screen.fill(BG_COLOUR)
 
@@ -345,11 +392,10 @@ while running:
         )
 
     for name, item in world_items.items():
-        if name in removed_items:
+        if name in removed_items or name in excepting:
             continue
 
         image = item_images[item["path"]]
-
         image_width = int(image.get_width() * CAMERA_ZOOM)
         image_height = int(image.get_height() * CAMERA_ZOOM)
 
@@ -366,7 +412,22 @@ while running:
             ),
         )
 
-    player.drawstats(screen)
+    c1 = RED if player.damn else WHITE
+    c1 = LIGHT_GREEN if player.gesond else c1
+    c2 = YELLOW if player.ching else GOLD
+    c4 = LIGHT_GREEN if player.chong else GREEN
+
+    player.drawstats(screen, c1, c2, WHITE, c4)
+
+    if frame_count % 3 == 0:
+        player.damn = False
+        player.gesond = False
+        player.ching = False
+        player.chong = False
+        player.tel = False
+
+    if player.health > player.max_health:
+        player.health = player.max_health
 
     frame_count += 1
 
